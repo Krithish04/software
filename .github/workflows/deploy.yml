@@ -1,0 +1,30 @@
+name: Deploy to Render
+on:
+  push:
+    branches: [ "main" ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: JorgeLNJunior/render-deploy@v1.5.0
+        with:
+          service_id: ${{ secrets.RENDER_SERVICE_ID }}
+          api_key: ${{ secrets.RENDER_API_KEY }}
+
+      # New notification step
+      - name: Notify on Success
+        if: success()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: Deployment to Render was successful!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Notify on Failure
+        if: failure()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: error
+          details: Deployment to Render failed. Check GitHub Actions logs!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
