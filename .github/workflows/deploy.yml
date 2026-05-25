@@ -11,3 +11,20 @@ jobs:
         with:
           service_id: ${{ secrets.RENDER_SERVICE_ID }}
           api_key: ${{ secrets.RENDER_API_KEY }}
+
+      # New notification step
+      - name: Notify on Success
+        if: success()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: info
+          details: Deployment to Render was successful!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Notify on Failure
+        if: failure()
+        uses: rjstone/discord-webhook-notify@v1
+        with:
+          severity: error
+          details: Deployment to Render failed. Check GitHub Actions logs!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
