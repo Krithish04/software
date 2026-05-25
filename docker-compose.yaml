@@ -5,7 +5,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URI=mongodb+srv://krithish:HJh4A6vhWPR0Kjqu@cluster0.8zqttvm.mongodb.net/?appName=Cluster0
+      - MONGO_URI=mongodb+srv://krithish
     depends_on:
       - mongo
 
