@@ -1,30 +1,54 @@
-name: Deploy to Render
+name: Deploy Backend to Amazon ECR
+
 on:
   push:
     branches: [ "main" ]
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: JorgeLNJunior/render-deploy@v1.5.0
-        with:
-          service_id: ${{ secrets.RENDER_SERVICE_ID }}
-          api_key: ${{ secrets.RENDER_API_KEY }}
 
-      # New notification step
+jobs:
+  build-and-ship:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # 1. Authenticate with AWS using your GitHub Secrets
+      - name: Authenticate with AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      # 2. Log into your private ECR warehouse
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 3. Build your production backend container and push it to AWS
+      - name: Build, Tag, and Push Backend Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: taskflow-backend
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # 4. Your Discord Notification on Success
       - name: Notify on Success
         if: success()
         uses: rjstone/discord-webhook-notify@v1
         with:
           severity: info
-          details: Deployment to Render was successful!
+          details: TaskFlow Backend successfully built and shipped to Amazon ECR!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
+      # 5. Your Discord Notification on Failure
       - name: Notify on Failure
         if: failure()
         uses: rjstone/discord-webhook-notify@v1
         with:
           severity: error
-          details: Deployment to Render failed. Check GitHub Actions logs!
+          details: AWS ECR Deployment failed. Check GitHub Actions logs immediately!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
