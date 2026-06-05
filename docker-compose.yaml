@@ -1,13 +1,15 @@
-version: '3.8'
+version: "3.8"
 services:
   backend:
     build: ./server
     ports:
       - "5000:5000"
     environment:
-      - MONGO_URI=mongodb+srv://krithish
+      - MONGO_URI=mongodb://mongo-1:27017/taskflow
+      - CLIENT_URL=http://localhost:5173
+      - PORT=5000
     depends_on:
-      - mongo
+      - mongo-1
 
   frontend:
     build: ./client
@@ -16,10 +18,11 @@ services:
     depends_on:
       - backend
 
-  mongo:
+  mongo-1:
     image: mongo:latest
+    container_name: mongo-1
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo-data:/data/db
 

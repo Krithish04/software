@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "TaskFlow - Full-stack MERN project management platform",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run vite\"",
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",
+    "vite": "cd client && npm run vite",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install"
   },
   "devDependencies": {

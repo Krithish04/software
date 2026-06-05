@@ -1,0 +1,39 @@
+#! mongo-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: mongo
+    namespace: taskflow
+    labels:
+        com.docker.compose.project: taskflow
+        com.docker.compose.service: mongo
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: taskflow
+            com.docker.compose.service: mongo
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: taskflow
+                com.docker.compose.service: mongo
+                com.docker.compose.network.default: "true"
+        spec:
+            containers:
+                - name: mongo
+                  image: mongo:latest
+                  imagePullPolicy: IfNotPresent
+                  ports:
+                    - name: mongo-27017
+                      containerPort: 27017
+                  volumeMounts:
+                    - name: data-db
+                      mountPath: /data/db
+            volumes:
+                - name: data-db
+                  persistentVolumeClaim:
+                    claimName: mongo-mongo-data

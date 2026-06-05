@@ -1,0 +1,19 @@
+#! mongo-service.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: Service
+metadata:
+    name: mongo-published
+    namespace: taskflow
+    labels:
+        com.docker.compose.project: taskflow
+        com.docker.compose.service: mongo
+spec:
+    selector:
+        com.docker.compose.project: taskflow
+        com.docker.compose.service: mongo
+    ports:
+        - name: mongo-27017
+          port: 27017
+          protocol: TCP
+          targetPort: mongo-27017

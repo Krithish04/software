@@ -1,0 +1,34 @@
+#! frontend-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: frontend
+    namespace: taskflow
+    labels:
+        com.docker.compose.project: taskflow
+        com.docker.compose.service: frontend
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: taskflow
+            com.docker.compose.service: frontend
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: taskflow
+                com.docker.compose.service: frontend
+                com.docker.compose.network.default: "true"
+        spec:
+            containers:
+                - name: frontend
+                  image: taskflow-frontend
+                  imagePullPolicy: IfNotPresent
+                  ports:
+                    - name: frontend-80
+                      containerPort: 80
+                    - name: frontend-5173
+                      containerPort: 5173

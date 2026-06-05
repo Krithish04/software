@@ -1,0 +1,35 @@
+#! backend-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: backend
+    namespace: taskflow
+    labels:
+        com.docker.compose.project: taskflow
+        com.docker.compose.service: backend
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: taskflow
+            com.docker.compose.service: backend
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: taskflow
+                com.docker.compose.service: backend
+                com.docker.compose.network.default: "true"
+        spec:
+            containers:
+                - name: backend
+                  image: taskflow-backend
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: MONGO_URI
+                      value: "mongodb+srv://krithish"
+                  ports:
+                    - name: backend-5000
+                      containerPort: 5000
