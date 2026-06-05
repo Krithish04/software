@@ -7,16 +7,6 @@ const { protect } = require("../middleware/auth");
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET || "secret", { expiresIn: "7d" });
 
-//Get /api/auth
-router.get("/health", async (req, res) => {
-  try {
-    echo("Status check");
-    res.json({ message: "Auth route is working" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 // POST /api/auth/register
 router.post("/register", async (req, res) => {
   try {
