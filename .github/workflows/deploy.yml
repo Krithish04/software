@@ -1,4 +1,4 @@
-name: Deploy Backend to Amazon ECR
+name: Deploy TaskFlow to Amazon ECR
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 3. Build your production backend container and push it to AWS
+      # 3. Build and Push Backend Image (Targeting ./server)
       - name: Build, Tag, and Push Backend Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -35,20 +35,30 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./server
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # 4. Your Discord Notification on Success
+      # 4. Build and Push Frontend Image (Targeting ./client)
+      - name: Build, Tag, and Push Frontend Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: taskflow-frontend
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./client
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # 5. Your Discord Notification on Success
       - name: Notify on Success
         if: success()
         uses: rjstone/discord-webhook-notify@v1
         with:
           severity: info
-          details: TaskFlow Backend successfully built and shipped to Amazon ECR!
+          details: Both TaskFlow Backend and Frontend client successfully built and shipped to Amazon ECR!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
-      # 5. Your Discord Notification on Failure
+      # 6. Your Discord Notification on Failure
       - name: Notify on Failure
         if: failure()
         uses: rjstone/discord-webhook-notify@v1
         with:
           severity: error
-          details: AWS ECR Deployment failed. Check GitHub Actions logs immediately!
+          details: AWS ECR Dual Deployment pipeline failed. Check GitHub Actions logs!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK_URL }}
